@@ -1,5 +1,6 @@
 package demo.spring.service;
 
+import java.util.HashMap;
 import org.apache.cxf.Bus;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -43,6 +44,15 @@ public class Application extends SpringBootServletInitializer {
         Bus bus = (Bus) applicationContext.getBean(Bus.DEFAULT_BUS_ID);
         Object implementor = new HelloWorldImpl();
         EndpointImpl endpoint = new EndpointImpl(bus, implementor);
+        HashMap<String,Object> props = new HashMap<String,Object>();
+        props.put("ws-security.username", "bob");
+        props.put("ws-security.callback-handler", new KeystorePasswordCallback());
+        props.put("ws-security.signature.properties", "/bob.properties");
+        props.put("ws-security.subject.cert.constraints", ".*O=apache.org.*");
+        props.put("ws-security.encryption.username", "useReqSigCert");
+        props.put("ws-security.saml2.validator", new CustomSaml2Validator());
+        endpoint.setWsdlLocation("classpath:wsdl/hello.wsdl");
+        endpoint.setProperties(props);
         endpoint.publish("/hello");
         endpoint.getServer().getEndpoint().getInInterceptors().add(new LoggingInInterceptor());
         endpoint.getServer().getEndpoint().getOutInterceptors().add(new LoggingOutInterceptor());

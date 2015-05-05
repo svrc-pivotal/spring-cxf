@@ -19,14 +19,24 @@
 // START SNIPPET: service
 package demo.spring.service;
 
+import java.security.Principal;
+import javax.annotation.Resource;
 import javax.jws.WebService;
+import javax.xml.ws.WebServiceContext;
 
 @WebService(endpointInterface = "demo.spring.service.HelloWorld")
 public class HelloWorldImpl implements HelloWorld {
 
+  @Resource
+    WebServiceContext wsContext;
+    
     public String sayHi(String text) {
+        Principal pr = wsContext.getUserPrincipal();
+        String username = "";
+        if (pr != null) username = pr.getName();
+        // Print out the JAAS subject as part of this
         System.out.println("sayHi called");
-        return "Hello " + text;
+        return "Ping " + username + " - " + text;
     }
 }
 // END SNIPPET: service

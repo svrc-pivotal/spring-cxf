@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin :'no.nils.wsdl2java'
+apply plugin: 'spring-boot'
 
 sourceCompatibility = 1.8
 version = '1.0'
@@ -9,14 +10,20 @@ jar {
     baseName = 'ws-client'
 }
 
+mainClassName = 'demo.service.client.Application'
+
 repositories {
     mavenCentral()
 }
 
 
 dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.apache.cxf:cxf-rt-frontend-jaxws:3.0.4'
     compile 'org.apache.cxf:cxf-rt-transports-http:3.0.4'
+    compile 'org.apache.cxf:cxf-rt-security:3.0.4'
+    compile 'org.apache.cxf:cxf-rt-ws-security:3.0.4'
+    compile 'org.apache.cxf:cxf-rt-ws-policy:3.0.4'
     compile 'org.apache.cxf:cxf-core:3.0.4'
     compile 'org.slf4j:slf4j-api:1.7.10'
     
@@ -33,6 +40,7 @@ buildscript {
     dependencies {
         // for wsdl2java
         classpath 'no.nils:wsdl2java:0.6'
+	classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.2.RELEASE")
     }
 }
 
