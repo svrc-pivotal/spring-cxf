@@ -37,7 +37,7 @@
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="HelloWorldImplServiceSoapBinding" type="tns:HelloWorld">
-    <wsp:PolicyReference URI="#HelloWorldSaml2AsymmetricPolicy"/>
+    <wsp:PolicyReference URI="#HelloWorldSaml1SVPolicy"/>
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <wsdl:operation name="sayHi">
       <soap:operation soapAction="" style="document"/>
@@ -67,7 +67,7 @@
                             <wsp:Policy>
                                 <sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
                                     <wsp:Policy>
-                                        <sp:WssX509V3Token10/>
+                                         <sp:WssX509V3Token11/>
                                     </wsp:Policy>
                                 </sp:X509Token>
                             </wsp:Policy>
@@ -77,20 +77,21 @@
                              <sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never">
                                <wsp:Policy>
                                   <sp:WssX509V3Token10/>
+                                  <sp:RequireIssuerSerialReference/>
                               </wsp:Policy>
                              </sp:X509Token>
                             </wsp:Policy>
                         </sp:RecipientToken>
                         <sp:Layout>
                             <wsp:Policy>
-                                <sp:Strict/>
+                                <sp:Lax/>
                             </wsp:Policy>
                         </sp:Layout>
                         <sp:IncludeTimestamp/>
                         <sp:OnlySignEntireHeadersAndBody/>
                         <sp:AlgorithmSuite>
                             <wsp:Policy>
-                                <sp:Basic256/>
+                                <sp:Basic128/>
                             </wsp:Policy>
                         </sp:AlgorithmSuite>
                     </wsp:Policy>
@@ -101,27 +102,76 @@
                         <sp:MustSupportRefThumbprint/>
                         <sp:MustSupportRefEncryptedKey/>
                     </wsp:Policy>
-                </sp:Wss11>
-                <sp:SignedSupportingTokens>
-                    <wsp:Policy>
-                        <sp:SamlToken sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
-                            <wsp:Policy>
-                                <sp:WssSamlV20Token11/>
-                            </wsp:Policy>
-                        </sp:SamlToken>
-                    </wsp:Policy>
-                </sp:SignedSupportingTokens>
+                </sp:Wss11>              
             </wsp:All>
         </wsp:ExactlyOne>
     </wsp:Policy>
-  
+<wsp:Policy wsu:Id="HelloWorldSaml1SVPolicy"
+  xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+  xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"
+  >
+  <sp:AsymmetricBinding>
+    <wsp:Policy>
+      <sp:InitiatorToken>
+        <wsp:Policy>
+          <sp:X509Token
+            sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+            <wsp:Policy>
+              <sp:WssX509V3Token11/>
+            </wsp:Policy>
+          </sp:X509Token>
+        </wsp:Policy>
+      </sp:InitiatorToken>
+      <sp:RecipientToken>
+        <wsp:Policy>
+          <sp:X509Token
+            sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never">
+            <wsp:Policy>
+              <sp:WssX509V3Token11/>
+            </wsp:Policy>
+          </sp:X509Token>
+        </wsp:Policy>
+      </sp:RecipientToken>
+      <sp:AlgorithmSuite>
+        <wsp:Policy>
+          <sp:Basic128/>
+        </wsp:Policy>
+      </sp:AlgorithmSuite>
+      <sp:Layout>
+        <wsp:Policy>
+          <sp:Lax/>
+        </wsp:Policy>
+      </sp:Layout>
+      <!-- sp:IncludeTimestamp/ -->
+      <!-- sp:ProtectTokens/ -->
+      <sp:OnlySignEntireHeadersAndBody/>
+    </wsp:Policy>
+  </sp:AsymmetricBinding>
+  <sp:SignedSupportingTokens>
+    <wsp:Policy>
+      <sp:SamlToken 
+        sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+        <wsp:Policy>
+          <sp:WssSamlV11Token11/>
+        </wsp:Policy>
+      </sp:SamlToken>
+    </wsp:Policy>
+  </sp:SignedSupportingTokens>
+  <sp:Wss11>
+    <wsp:Policy>
+      <sp:MustSupportRefKeyIdentifier/>
+      <sp:MustSupportRefIssuerSerial/>
+    </wsp:Policy>
+  </sp:Wss11>
+</wsp:Policy>
+
      <wsp:Policy wsu:Id="Input_Policy">
    <wsp:ExactlyOne>
      <wsp:All>
        <sp:SignedParts>
          <sp:Body/>
        </sp:SignedParts>
-       <sp:EncryptedParts wsp:Optional="true">
+       <sp:EncryptedParts >
          <sp:Body/>
        </sp:EncryptedParts>
      </wsp:All>

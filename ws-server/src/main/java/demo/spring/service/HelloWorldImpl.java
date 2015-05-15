@@ -31,7 +31,7 @@ public class HelloWorldImpl implements HelloWorld {
     WebServiceContext wsContext;
     
     public String sayHi(String text) {
-        Principal pr = wsContext.getUserPrincipal();
+        Principal pr = wsContext.getUserPrincipal();       
         String username = "";
         if (pr != null) username = pr.getName();
         // Print out the JAAS subject as part of this

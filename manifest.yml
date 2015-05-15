@@ -1,0 +1,10 @@
+---
+applications:
+- name: wsserver
+  instances: 1
+  path: ./ws-server/build/libs/ws-server-1.0.jar
+- name: wsclient
+  instances: 1
+  path: ./ws-client/build/libs/ws-client-1.0.jar
+  env:
+   serverHost: wsserver.yyc.stucharlton.com

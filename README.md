@@ -1,17 +1,18 @@
 # spring-cxf
 
 Demonstrates ability to host a JAX-WS service using Spring Boot and Apache CXF with zero XML configuration.
+Demonstrates SAML Sender-Vouches assertions
 
-## Run the Service
-In a terminal, execute: `./gradlew bootRun`
+## Run the Client and Service in Cloud Foundry
+Modify the `serverHost` entry inside the application Manifest `manifest.yml` to reflect your CF domain
+In a terminal, execute: `./gradlew assemble; cf push`
 
 Alternatively can be run in your IDE of choice by running `demo.spring.service.Application.java` as a normal Java application.
 
-Alternatively can be run via executing the `war` directly:
-
-    java -jar ws-server/build/libs/ws-server-1.0.war
-    
-Alternatively can be run by being dropped into a container such as Jetty or Tomcat's /webapp directory.
+Alternatively either client or server can be run via executing the `jar` directly:
+    export serverHost="localhost:9090"
+    java -jar ws-client/build/libs/ws-client-1.0.jar --server.port=7070
+    java -jar ws-server/build/libs/ws-server-1.0.jar --server.port=9090
 
 ### Service endpoint
 The service endpoint is `<context-path>/api/hello`.  The full path to the WSDL/service is:
