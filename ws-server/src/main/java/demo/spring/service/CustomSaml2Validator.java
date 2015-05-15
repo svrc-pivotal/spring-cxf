@@ -19,46 +19,36 @@
 package demo.spring.service;
 
 import java.util.List;
-import javax.security.auth.Subject;
+import java.security.Principal;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.SamlAssertionValidator;
+import org.apache.wss4j.common.principal.SAMLTokenPrincipalImpl;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AttributeStatement;
+import org.apache.cxf.interceptor.security.NamePasswordCallbackHandler;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 
 /**
  * This class does some trivial validation of a received SAML Assertion. It checks that it is
  * a SAML 2 Assertion, and checks the issuer name and that it has an Attribute Statement. 
  */
 public class CustomSaml2Validator extends SamlAssertionValidator {
-    
+  
     @Override
     public Credential validate(Credential credential, RequestData data) throws WSSecurityException {
         Credential validatedCredential = super.validate(credential, data);
-        SamlAssertionWrapper assertion = validatedCredential.getSamlAssertion();
+        System.out.println("Principal in credential: " + validatedCredential.getPrincipal());
         
-        if (!"sts".equals(assertion.getIssuerString())) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "invalidSAMLsecurity");
-        }
-        
-        Assertion saml2Assertion = assertion.getSaml2();
-        if (saml2Assertion == null) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "invalidSAMLsecurity");
-        }
-        
-        
-        List<AttributeStatement> attributeStatements = saml2Assertion.getAttributeStatements();
-        if (attributeStatements == null || attributeStatements.isEmpty()) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "invalidSAMLsecurity");
-        }
-        
-        // get the subject
-       // Subject s = saml2Assertion.getSubject();
-        //validatedCredential.setSubject(s);
-        
+        Principal principal = new SAMLTokenPrincipalImpl(validatedCredential.getSamlAssertion());
+        validatedCredential.setPrincipal(principal);
         return validatedCredential;
     }
 
+    
 }

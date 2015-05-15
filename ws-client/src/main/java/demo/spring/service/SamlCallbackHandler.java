@@ -38,7 +38,7 @@ import org.apache.wss4j.common.saml.bean.ConditionsBean;
 import org.apache.wss4j.common.saml.bean.KeyInfoBean;
 import org.apache.wss4j.common.saml.bean.KeyInfoBean.CERT_IDENTIFIER;
 import org.apache.wss4j.common.saml.bean.SubjectBean;
-import org.opensaml.common.SAMLVersion;
+import org.apache.wss4j.common.saml.bean.Version;
 import org.apache.wss4j.common.saml.builder.SAML1Constants;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 
@@ -46,8 +46,8 @@ import org.apache.wss4j.common.saml.builder.SAML2Constants;
  * A CallbackHandler instance that is used by the STS to mock up a SAML Attribute Assertion.
  */
 public class SamlCallbackHandler implements CallbackHandler {
-    private boolean saml2 = true;
-    private String confirmationMethod = SAML2Constants.CONF_SENDER_VOUCHES;
+    private boolean saml2 = false;
+    private String confirmationMethod = SAML1Constants.CONF_SENDER_VOUCHES;
     private CERT_IDENTIFIER keyInfoIdentifier = CERT_IDENTIFIER.X509_CERT;
     private boolean signAssertion;
     private ConditionsBean conditions;
@@ -71,7 +71,7 @@ public class SamlCallbackHandler implements CallbackHandler {
         for (int i = 0; i < callbacks.length; i++) {
             if (callbacks[i] instanceof SAMLCallback) {
                 SAMLCallback callback = (SAMLCallback) callbacks[i];
-                callback.setSamlVersion(SAMLVersion.VERSION_20);
+                callback.setSamlVersion(Version.SAML_11);
                
                 if (conditions != null) {
                     callback.setConditions(conditions);
@@ -80,11 +80,9 @@ public class SamlCallbackHandler implements CallbackHandler {
                 // Make sure to generate assertion from JAAS subject
                 
                 callback.setIssuer("sts");
-                String subjectName = "uid=sts-client,o=mock-sts.com";
+                String subjectName = "uid=saml-subject-sample,o=mock-sts.com";
                 String subjectQualifier = "www.mock-sts.com";
-                if (!saml2 && SAML2Constants.CONF_SENDER_VOUCHES.equals(confirmationMethod)) {
-                    confirmationMethod = SAML1Constants.CONF_SENDER_VOUCHES;
-                }
+            
                 SubjectBean subjectBean = 
                     new SubjectBean(
                         subjectName, subjectQualifier, confirmationMethod
@@ -94,12 +92,14 @@ public class SamlCallbackHandler implements CallbackHandler {
                 
                 AttributeStatementBean attrBean = new AttributeStatementBean();
                 attrBean.setSubject(subjectBean);
-                
                 AttributeBean attributeBean = new AttributeBean();
-                attributeBean.setQualifiedName("subject-role");              
+                attributeBean.setSimpleName("subject-role");
+                attributeBean.setQualifiedName("http://custom-ns");
                 attributeBean.addAttributeValue("system-user");
+
                 attrBean.setSamlAttributes(Collections.singletonList(attributeBean));
                 callback.setAttributeStatementData(Collections.singletonList(attrBean));
+
                 
                 try {
                     Crypto crypto = CryptoFactory.getInstance(cryptoPropertiesFile);

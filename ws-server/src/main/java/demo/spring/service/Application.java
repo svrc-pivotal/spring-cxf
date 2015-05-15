@@ -1,6 +1,8 @@
 package demo.spring.service;
 
 import java.util.HashMap;
+import java.net.URL;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -28,6 +30,15 @@ public class Application extends SpringBootServletInitializer {
     private ApplicationContext applicationContext;
 
     public static void main(String[] args) {
+        /*if(System.getProperty("java.security.auth.login.config") == null) {
+            String jaasConfigFile = null;
+            URL jaasConfigURL = Application.class.getClassLoader().getResource("jaas.conf");
+            if(jaasConfigURL != null) {
+                jaasConfigFile = jaasConfigURL.getFile();
+            }
+            System.setProperty("java.security.auth.login.config", jaasConfigFile);
+        }
+        */
         SpringApplication.run(Application.class, args);
     }
 
@@ -50,12 +61,15 @@ public class Application extends SpringBootServletInitializer {
         props.put("ws-security.signature.properties", "/bob.properties");
         props.put("ws-security.subject.cert.constraints", ".*O=apache.org.*");
         props.put("ws-security.encryption.username", "useReqSigCert");
-        props.put("ws-security.saml2.validator", new CustomSaml2Validator());
+        props.put("ws-security.enable.unsigned-saml-assertion.principal", true);
+        // props.put("ws-security.saml1.validator", new CustomSaml2Validator());    
+        // props.put("ws-security.saml2.validator", new CustomSaml2Validator());
         endpoint.setWsdlLocation("classpath:wsdl/hello.wsdl");
         endpoint.setProperties(props);
         endpoint.publish("/hello");
         endpoint.getServer().getEndpoint().getInInterceptors().add(new LoggingInInterceptor());
         endpoint.getServer().getEndpoint().getOutInterceptors().add(new LoggingOutInterceptor());
+        
         return endpoint;
     }
 
